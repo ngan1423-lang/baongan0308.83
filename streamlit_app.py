@@ -1,9 +1,396 @@
-import streamlit as st
+%%html
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rắn Săn Mồi - Nhạc Nền họa tiết</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-st.title("Ứng dụng của Bảo Ngân")
-st.write("Chào mừng bạn đến với ứng dụng của tôi!")
+        body {
+            background-color: #111424;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: center;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
 
-ten = st.text_input("Nhập tên của bạn")
+        .game-container {
+            text-align: center;
+            background: rgba(22, 36, 71, 0.7);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(0, 255, 240, 0.1);
+            position: relative;
+        }
 
-if ten:
-    st.success(f"Xin chào {ten}!")
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00fff0, #7928ca);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .mute-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 240, 0.3);
+            color: #00fff0;
+            font-size: 1.2rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 255, 240, 0.2);
+        }
+
+        .mute-btn:hover {
+            background: rgba(0, 255, 240, 0.2);
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(0, 255, 240, 0.4);
+        }
+
+        .scoreboard {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #e4e4e4;
+        }
+
+        .canvas-area {
+            position: relative;
+            width: 380px;
+            height: 380px;
+            margin: 0 auto;
+        }
+
+        canvas {
+            background-color: #0b0f19;
+            border-radius: 12px;
+            box-shadow: 0 0 25px rgba(0, 255, 240, 0.15);
+            display: block;
+            border: 2px solid rgba(0, 255, 240, 0.2);
+        }
+
+        .game-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(11, 15, 25, 0.9);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            border: 2px solid rgba(0, 255, 240, 0.3);
+        }
+
+        .overlay-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #00fff0;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(0, 255, 240, 0.5);
+        }
+
+        .action-btn {
+            background: linear-gradient(45deg, #00fff0, #10b981);
+            border: none;
+            color: #0d1117;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 255, 240, 0.4);
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 255, 240, 0.6);
+        }
+
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(3, 60px);
+            grid-template-rows: repeat(2, 50px);
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1.3rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            outline: none;
+            user-select: none;
+        }
+
+        .btn:active {
+            background: rgba(0, 255, 240, 0.4);
+            transform: scale(0.95);
+        }
+
+        .btn-up { grid-column: 2; grid-row: 1; }
+        .btn-left { grid-column: 1; grid-row: 2; }
+        .btn-down { grid-column: 2; grid-row: 2; }
+        .btn-right { grid-column: 3; grid-row: 2; }
+
+        .hint {
+            margin-top: 12px;
+            font-size: 0.85rem;
+            color: #8b9bb4;
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="bgMusic" src="/content/snapvideo--“Tuổi thanh xuân cũng như mây trời…”#toithayhoavangtrencoxanh #xuhuong #hanhsuri -4774339.mp3" loop></audio>
+
+    <div class="game-container">
+        <button id="muteBtn" class="mute-btn" title="Tắt/Bật Nhạc">🔊</button>
+        <h1>Rắn Săn Mồi</h1>
+        <div class="scoreboard">Điểm: <span id="score">0</span> | Kỷ lục: <span id="highScore">0</span></div>
+
+        <div class="canvas-area">
+            <canvas id="gameCanvas" width="380" height="380"></canvas>
+            <div id="gameOverlay" class="game-overlay">
+                <div id="overlayTitle" class="overlay-title">RẮN SĂN MỒI</div>
+                <button id="actionBtn" class="action-btn">BẮT ĐẦU</button>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-up" onclick="changeDirection('UP')">▲</button>
+            <button class="btn btn-left" onclick="changeDirection('LEFT')">◀</button>
+            <button class="btn btn-down" onclick="changeDirection('DOWN')">▼</button>
+            <button class="btn btn-right" onclick="changeDirection('RIGHT')">▶</button>
+        </div>
+        <p class="hint">Sử dụng các phím mũi tên hoặc nút bấm ảo để điều khiển</p>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('score');
+        const highScoreEl = document.getElementById('highScore');
+        const overlay = document.getElementById('gameOverlay');
+        const overlayTitle = document.getElementById('overlayTitle');
+        const actionBtn = document.getElementById('actionBtn');
+        const bgMusic = document.getElementById('bgMusic');
+        const muteBtn = document.getElementById('muteBtn');
+
+        const gridSize = 20;
+        const tileCount = canvas.width / gridSize;
+
+        let snake = [];
+        let food = { x: 0, y: 0 };
+        let dx = gridSize;
+        let dy = 0;
+        let score = 0;
+        let highScore = localStorage.getItem('snakeHighScore') || 0;
+        let gameInterval = null;
+        let gameActive = false;
+        let isMuted = false;
+
+        highScoreEl.innerText = highScore;
+
+        actionBtn.addEventListener('click', startGame);
+        muteBtn.addEventListener('click', toggleMute);
+        document.addEventListener('keydown', handleKeydown);
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            if (isMuted) {
+                bgMusic.muted = true;
+                muteBtn.innerText = '🔇';
+            } else {
+                bgMusic.muted = false;
+                muteBtn.innerText = '🔊';
+                if (gameActive && bgMusic.paused) {
+                    bgMusic.play().catch(e => {});
+                }
+            }
+        }
+
+        function startGame() {
+            overlay.style.display = 'none';
+            snake = [
+                { x: gridSize * 5, y: gridSize * 5 },
+                { x: gridSize * 4, y: gridSize * 5 },
+                { x: gridSize * 3, y: gridSize * 5 }
+            ];
+            dx = gridSize;
+            dy = 0;
+            score = 0;
+            scoreEl.innerText = score;
+            generateFood();
+            gameActive = true;
+
+            bgMusic.currentTime = 0;
+            if (!isMuted) {
+                bgMusic.play().catch(e => console.log("Không thể tự động phát nhạc:", e));
+            }
+
+            if (gameInterval) clearInterval(gameInterval);
+            gameInterval = setInterval(update, 150);
+        }
+
+        function generateFood() {
+            food.x = Math.floor(Math.random() * tileCount) * gridSize;
+            food.y = Math.floor(Math.random() * tileCount) * gridSize;
+            snake.forEach(part => {
+                if (part.x === food.x && part.y === food.y) {
+                    generateFood();
+                }
+            });
+        }
+
+        function update() {
+            if (!gameActive) return;
+
+            const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+
+            if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height || checkSelfCollision(head)) {
+                gameOver();
+                return;
+            }
+
+            snake.unshift(head);
+
+            if (head.x === food.x && head.y === food.y) {
+                score += 10;
+                scoreEl.innerText = score;
+                if (score > highScore) {
+                    highScore = score;
+                    highScoreEl.innerText = highScore;
+                    localStorage.setItem('snakeHighScore', highScore);
+                }
+                generateFood();
+            } else {
+                snake.pop();
+            }
+
+            draw();
+        }
+
+        function checkSelfCollision(head) {
+            for (let i = 1; i < snake.length; i++) {
+                if (snake[i].x === head.x && snake[i].y === head.y) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function draw() {
+            ctx.fillStyle = '#0b0f19';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.strokeStyle = 'rgba(0, 255, 240, 0.04)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < tileCount; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * gridSize, 0);
+                ctx.lineTo(i * gridSize, canvas.height);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(0, i * gridSize);
+                ctx.lineTo(canvas.width, i * gridSize);
+                ctx.stroke();
+            }
+
+            snake.forEach((part, index) => {
+                ctx.fillStyle = index === 0 ? '#00fff0' : '#10b981';
+                ctx.strokeStyle = '#0b0f19';
+                ctx.lineWidth = 2;
+                ctx.fillRect(part.x, part.y, gridSize, gridSize);
+                ctx.strokeRect(part.x, part.y, gridSize, gridSize);
+            });
+
+            ctx.fillStyle = '#ff007f';
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = '#ff007f';
+            ctx.beginPath();
+            ctx.arc(food.x + gridSize/2, food.y + gridSize/2, gridSize/2 - 2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        }
+
+        function gameOver() {
+            gameActive = false;
+            clearInterval(gameInterval);
+            overlayTitle.innerText = 'BẠN ĐÃ THUA!';
+            actionBtn.innerText = 'CHƠI LẠI';
+            overlay.style.display = 'flex';
+            bgMusic.pause();
+        }
+
+        function changeDirection(dir) {
+            if (!gameActive) return;
+            if (dir === 'UP' && dy === 0) { dx = 0; dy = -gridSize; }
+            if (dir === 'DOWN' && dy === 0) { dx = 0; dy = gridSize; }
+            if (dir === 'LEFT' && dx === 0) { dx = -gridSize; dy = 0; }
+            if (dir === 'RIGHT' && dx === 0) { dx = gridSize; dy = 0; }
+        }
+
+        function handleKeydown(e) {
+            if (e.key === 'ArrowUp' || e.key === 'w') changeDirection('UP');
+            if (e.key === 'ArrowDown' || e.key === 's') changeDirection('DOWN');
+            if (e.key === 'ArrowLeft' || e.key === 'a') changeDirection('LEFT');
+            if (e.key === 'ArrowRight' || e.key === 'd') changeDirection('RIGHT');
+
+            if (!gameActive && (e.key === 'Enter' || e.key === ' ')) {
+                startGame();
+            }
+        }
+
+        draw();
+    </script>
+</body>
+</html>
