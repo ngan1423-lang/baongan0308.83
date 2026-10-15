@@ -9,10 +9,15 @@ st.set_page_config(
 )
 
 st.title("🐍 Rắn Săn Mồi")
-st.write("Dùng các phím mũi tên để điều khiển rắn!")
 
-st.info(
-    "Đây là khung ứng dụng Streamlit. "
-    "Bước tiếp theo cần đưa mã HTML/CSS/JavaScript "
-    "đầy đủ của game vào ứng dụng."
-)
+game_path = Path(__file__).parent / "game.html"
+
+if game_path.exists():
+    html_code = game_path.read_text(encoding="utf-8")
+    components.html(
+        html_code,
+        height=750,
+        scrolling=True
+    )
+else:
+    st.error("Không tìm thấy file game.html!")
