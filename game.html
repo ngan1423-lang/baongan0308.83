@@ -244,20 +244,7 @@
         muteBtn.addEventListener('click', toggleMute);
         document.addEventListener('keydown', handleKeydown);
 
-        function toggleMute() {
-            isMuted = !isMuted;
-            if (isMuted) {
-                bgMusic.muted = true;
-                muteBtn.innerText = '🔇';
-            } else {
-                bgMusic.muted = false;
-                muteBtn.innerText = '🔊';
-                if (gameActive && bgMusic.paused) {
-                    bgMusic.play().catch(e => {});
-                }
-            }
-        }
-
+        
         function startGame() {
             overlay.style.display = 'none';
             snake = [
