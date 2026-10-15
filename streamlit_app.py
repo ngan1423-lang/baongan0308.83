@@ -22,18 +22,7 @@ if game_path.exists():
 else:
     st.error("Không tìm thấy file game.html!")
     import base64
-import streamlit as st
 
 with open("Tôi thấy hoa vàng trên cỏ xanh.mp3", "rb") as f:
-    audio_bytes = f.read()
-
-audio_base64 = base64.b64encode(audio_bytes).decode()
-
-st.markdown(
-    f"""
-    <audio controls loop>
-        <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mpeg">
-    </audio>
-    """,
-    unsafe_allow_html=True
-)
+  st.audio("Tôi thấy hoa vàng trên cỏ xanh.mp3", format="audio/mp3")
+    
