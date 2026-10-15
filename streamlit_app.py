@@ -23,6 +23,3 @@ else:
     st.error("Không tìm thấy file game.html!")
     import base64
 
-with open("Tôi thấy hoa vàng trên cỏ xanh.mp3", "rb") as f:
-  st.audio("Tôi thấy hoa vàng trên cỏ xanh.mp3", format="audio/mp3")
-    
