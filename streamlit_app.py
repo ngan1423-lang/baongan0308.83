@@ -21,3 +21,6 @@ if game_path.exists():
     )
 else:
     st.error("Không tìm thấy file game.html!")
+    <audio id="bgMusic" loop>
+  <source src="./Tôi thấy hoa vàng trên cỏ xanh.mp3" type="audio/mpeg">
+</audio>
